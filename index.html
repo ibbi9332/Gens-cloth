@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ibrahim Cloth Center</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f7f7f7;
+  color:#171717;
+}
+
+/* ================= HEADER ================= */
+
+header{
+  background:#111;
+  color:#fff;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 3px 15px rgba(0,0,0,.2);
+}
+
+.topbar{
+  max-width:1250px;
+  margin:auto;
+  padding:17px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+
+.logo{
+  font-size:23px;
+  font-weight:800;
+  letter-spacing:2px;
+  white-space:nowrap;
+}
+
+.logo span{
+  display:block;
+  font-size:10px;
+  letter-spacing:4px;
+  color:#bbb;
+  margin-top:3px;
+}
+
+.menu-btn{
+  background:none;
+  color:white;
+  border:0;
+  font-size:30px;
+  cursor:pointer;
+  line-height:1;
+}
+
+/* ================= SEARCH ================= */
+
+.search-area{
+  background:#fff;
+  padding:14px 20px;
+  border-bottom:1px solid #eee;
+}
+
+.search{
+  max-width:800px;
+  margin:auto;
+  display:flex;
+  background:#f3f3f3;
+  border-radius:30px;
+  overflow:hidden;
+}
+
+.search input{
+  flex:1;
+  border:0;
+  outline:0;
+  padding:14px 18px;
+  background:transparent;
+  font-size:15px;
+}
+
+.search button{
+  border:0;
+  background:#111;
+  color:#fff;
+  padding:0 22px;
+  cursor:pointer;
+}
+
+/* ================= SIDE MENU ================= */
+
+.side-menu{
+  position:fixed;
+  top:0;
+  left:-310px;
+  width:290px;
+  height:100%;
+  background:#fff;
+  z-index:500;
+  box-shadow:4px 0 20px rgba(0,0,0,.2);
+  transition:.3s;
+  padding:25px;
+}
+
+.side-menu.open{
+  left:0;
+}
+
+.side-menu h2{
+  margin:45px 0 20px;
+}
+
+.side-menu button{
+  width:100%;
+  text-align:left;
+  padding:14px;
+  border:0;
+  background:#fff;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.side-menu button:hover{
+  background:#f1f1f1;
+}
+
+.close-menu{
+  float:right;
+  font-size:30px!important;
+  background:none!important;
+  border:0!important;
+  width:auto!important;
+}
+
+/* ================= HERO ================= */
+
+.hero{
+  min-height:440px;
+  background:
+  linear-gradient(rgba(0,0,0,.48),rgba(0,0,0,.48)),
+  linear-gradient(135deg,#1c1c1c,#7b0000,#161616);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:50px 20px;
+}
+
+.hero h1{
+  font-size:clamp(38px,8vw,80px);
+  letter-spacing:4px;
+}
+
+.hero p{
+  margin:18px 0 28px;
+  font-size:18px;
+  letter-spacing:2px;
+}
+
+.shop-btn{
+  display:inline-block;
+  background:#fff;
+  color:#111;
+  padding:14px 28px;
+  border-radius:4px;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+/* ================= SECTION ================= */
+
+.section{
+  max-width:1250px;
+  margin:auto;
+  padding:55px 20px;
+}
+
+.section-title{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.section-title h2{
+  font-size:32px;
+}
+
+.section-title p{
+  color:#777;
+  margin-top:8px;
+}
+
+/* ================= CATEGORIES ================= */
+
+.categories{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-bottom:35px;
+}
+
+.categories button{
+  border:1px solid #222;
+  background:#fff;
+  padding:10px 18px;
+  border-radius:30px;
+  cursor:pointer;
+}
+
+.categories button.active,
+.categories button:hover{
+  background:#111;
+  color:#fff;
+}
+
+/* ================= PRODUCTS ================= */
+
+.products{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:23px;
+}
+
+.product{
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 4px 18px rgba(0,0,0,.08);
+  transition:.2s;
+}
+
+.product:hover{
+  transform:translateY(-3px);
+}
+
+.media{
+  position:relative;
+  background:#eee;
+}
+
+.main-image{
+  width:100%;
+  height:300px;
+  object-fit:cover;
+  display:block;
+  cursor:pointer;
+}
+
+.video{
+  width:100%;
+  max-height:350px;
+  display:block;
+  background:#000;
+}
+
+.badge{
+  position:absolute;
+  top:12px;
+  left:12px;
+  background:#111;
+  color:#fff;
+  padding:6px 10px;
+  font-size:11px;
+  border-radius:3px;
+  z-index:2;
+}
+
+.info{
+  padding:17px;
+}
+
+.info h3{
+  font-size:18px;
+  margin-bottom:7px;
+}
+
+.category-name{
+  color:#888;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.price{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.description{
+  color:#666;
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:14px;
+}
+
+.order-btn{
+  display:block;
+  text-align:center;
+  background:#20c767;
+  color:#fff;
+  text-decoration:none;
+  padding:12px;
+  border-radius:6px;
+  font-weight:bold;
+}
+
+/* ================= PHOTO GALLERY ================= */
+
+.photos{
+  display:flex;
+  gap:6px;
+  padding:8px;
+  overflow-x:auto;
+  background:#fafafa;
+}
+
+.photos img{
+  width:55px;
+  height:55px;
+  object-fit:cover;
+  border-radius:5px;
+  cursor:pointer;
+  border:2px solid transparent;
+}
+
+.photos img:hover{
+  border-color:#111;
+}
+
+/* ================= FULL SCREEN IMAGE ================= */
+
+.image-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.96);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+}
+
+.image-modal.open{
+  display:flex;
+}
+
+.modal-image{
+  max-width:92%;
+  max-height:85%;
+  object-fit:contain;
+  border-radius:5px;
+}
+
+.modal-close{
+  position:absolute;
+  top:18px;
+  right:22px;
+  color:#fff;
+  font-size:40px;
+  border:0;
+  background:none;
+  cursor:pointer;
+  z-index:1002;
+}
+
+.modal-prev,
+.modal-next{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:50px;
+  height:60px;
+  border:0;
+  border-radius:8px;
+  background:rgba(255,255,255,.15);
+  color:#fff;
+  font-size:35px;
+  cursor:pointer;
+}
+
+.modal-prev{
+  left:15px;
+}
+
+.modal-next{
+  right:15px;
+}
+
+.modal-counter{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  color:#fff;
+  background:rgba(0,0,0,.5);
+  padding:7px 14px;
+  border-radius:20px;
+}
+
+/* ================= EMPTY ================= */
+
+.empty{
+  text-align:center;
+  grid-column:1/-1;
+  padding:50px;
+  color:#777;
+}
+
+/* ================= FOOTER ================= */
+
+footer{
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding:45px 20px;
+}
+
+.footer-links{
+  margin-top:20px;
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.footer-links a{
+  color:#fff;
+  text-decoration:none;
+  border:1px solid #555;
+  padding:11px 18px;
+  border-radius:5px;
+}
+
+/* ================= WHATSAPP ================= */
+
+.whatsapp{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#20c767;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  font-size:27px;
+  z-index:150;
+  box-shadow:0 4px 18px rgba(0,0,0,.25);
+}
+
+/* ================= OWNER ================= */
+
+.owner-page{
+  display:none;
+  max-width:700px;
+  margin:40px auto;
+  padding:20px;
+}
+
+.owner-box{
+  background:#fff;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,.1);
+}
+
+.owner-box input,
+.owner-box textarea,
+.owner-box select{
+  width:100%;
+  padding:13px;
+  margin:7px 0 14px;
+  border:1px solid #ccc;
+  border-radius:7px;
+}
+
+.owner-box textarea{
+  min-height:90px;
+}
+
+.owner-box label{
+  font-weight:bold;
+  font-size:14px;
+}
+
+.owner-btn{
+  background:#111;
+  color:#fff;
+  border:0;
+  padding:13px 20px;
+  border-radius:7px;
+  cursor:pointer;
+  margin-right:5px;
+}
+
+.logout{
+  background:#c40000;
+}
+
+.owner-product{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.owner-product img{
+  width:60px;
+  height:60px;
+  object-fit:cover;
+  border-radius:6px;
+}
+
+.owner-product-info{
+  flex:1;
+}
+
+.delete{
+  background:#c40000;
+  color:#fff;
+  border:0;
+  padding:9px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:600px){
+
+  .logo{
+    font-size:18px;
+  }
+
+  .logo span{
+    font-size:8px;
+  }
+
+  .hero{
+    min-height:390px;
+  }
+
+  .hero h1{
+    font-size:38px;
+  }
+
+  .main-image{
+    height:270px;
+  }
+
+  .products{
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+
+  .info{
+    padding:12px;
+  }
+
+  .info h3{
+    font-size:15px;
+  }
+
+  .price{
+    font-size:17px;
+  }
+
+  .order-btn{
+    font-size:12px;
+    padding:10px 5px;
+  }
+
+  .modal-prev,
+  .modal-next{
+    width:42px;
+    height:52px;
+    font-size:28px;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= SIDE MENU ================= -->
+
+<div class="side-menu" id="sideMenu">
+
+<button class="close-menu" onclick="closeMenu()">×</button>
+
+<h2>Menu</h2>
+
+<button onclick="selectCategory('All')">
+All Products
+</button>
+
+<button onclick="selectCategory('Clothes')">
+Clothes
+</button>
+
+<button onclick="selectCategory('Men Clothes')">
+Men Clothes
+</button>
+
+<button onclick="selectCategory('Women Clothes')">
+Women Clothes
+</button>
+
+<button onclick="selectCategory('Perfumes')">
+Perfumes
+</button>
+
+<button onclick="selectCategory('Watches')">
+Watches
+</button>
+
+</div>
+
+
+<!-- ================= HEADER ================= -->
+
+<header>
+
+<div class="topbar">
+
+<button class="menu-btn" onclick="openMenu()">
+☰
+</button>
+
+<div class="logo">
+IBRAHIM CLOTH CENTER
+<span>FASHION • STYLE • QUALITY</span>
+</div>
+
+<div style="width:30px"></div>
+
+</div>
+
+</header>
+
+
+<!-- ================= SEARCH ================= -->
+
+<div class="search-area">
+
+<div class="search">
+
+<input
+id="searchInput"
+type="search"
+placeholder="Search clothes, men, women, perfume, watch..."
+oninput="searchProducts()"
+>
+
+<button onclick="searchProducts()">
+🔎
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ================= PUBLIC SITE ================= -->
+
+<div id="publicSite">
+
+<section class="hero">
+
+<div>
+
+<h1>IBRAHIM CLOTH CENTER</h1>
+
+<p>
+YOUR STYLE • YOUR CHOICE
+</p>
+
+<a href="#shop" class="shop-btn">
+EXPLORE COLLECTION
+</a>
+
+</div>
+
+</section>
+
+
+<section class="section" id="shop">
+
+<div class="section-title">
+
+<h2>OUR COLLECTION</h2>
+
+<p>Discover our latest products</p>
+
+</div>
+
+
+<div class="categories">
+
+<button
+class="active"
+onclick="selectCategory('All')">
+ALL
+</button>
+
+<button onclick="selectCategory('Clothes')">
+CLOTHES
+</button>
+
+<button onclick="selectCategory('Men Clothes')">
+MEN
+</button>
+
+<button onclick="selectCategory('Women Clothes')">
+WOMEN
+</button>
+
+<button onclick="selectCategory('Perfumes')">
+PERFUMES
+</button>
+
+<button onclick="selectCategory('Watches')">
+WATCHES
+</button>
+
+</div>
+
+
+<div class="products" id="products">
+
+<div class="empty">
+Loading products...
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+
+<!-- ================= OWNER PAGE ================= -->
+
+<section class="owner-page" id="ownerPage">
+
+<div class="owner-box">
+
+<div id="loginBox">
+
+<h2>Owner Login</h2>
+
+<p style="color:#777;margin:8px 0 20px">
+Owner access only
+</p>
+
+<label>Email</label>
+
+<input
+id="ownerEmail"
+type="email"
+autocomplete="username"
+>
+
+<label>Password</label>
+
+<input
+id="ownerPassword"
+type="password"
+autocomplete="current-password"
+>
+
+<button
+class="owner-btn"
+onclick="login()">
+LOGIN
+</button>
+
+<p
+id="loginMsg"
+style="margin-top:12px">
+</p>
+
+</div>
+
+
+<div id="dashboard" style="display:none">
+
+<h2>Owner Dashboard</h2>
+
+<p style="color:#777;margin:8px 0 25px">
+Add your products
+</p>
+
+
+<label>Product Name</label>
+
+<input
+id="productName"
+placeholder="Example: Premium Suit"
+>
+
+
+<label>Category</label>
+
+<select id="productCategory">
+
+<option value="Clothes">
+Clothes
+</option>
+
+<option value="Men Clothes">
+Men Clothes
+</option>
+
+<option value="Women Clothes">
+Women Clothes
+</option>
+
+<option value="Perfumes">
+Perfumes
+</option>
+
+<option value="Watches">
+Watches
+</option>
+
+</select>
+
+
+<label>Price</label>
+
+<input
+id="productPrice"
+type="number"
+placeholder="5000"
+>
+
+
+<label>Description</label>
+
+<textarea
+id="productDescription"
+placeholder="Product details..."
+></textarea>
+
+
+<label>
+Product Photos — multiple allowed
+</label>
+
+<input
+id="productPhotos"
+type="file"
+accept="image/*"
+multiple
+>
+
+
+<label>
+Product Video — optional
+</label>
+
+<input
+id="productVideo"
+type="file"
+accept="video/*"
+>
+
+
+<br>
+
+<button
+class="owner-btn"
+id="addProductBtn"
+onclick="addProduct()">
+ADD PRODUCT
+</button>
+
+<button
+class="owner-btn logout"
+onclick="logout()">
+LOGOUT
+</button>
+
+<p
+id="addMsg"
+style="margin-top:12px">
+</p>
+
+
+<hr style="margin:30px 0">
+
+
+<h3>Your Products</h3>
+
+<div id="ownerProducts">
+
+<p style="color:#777;margin-top:15px">
+Loading...
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+<h2>IBRAHIM CLOTH CENTER</h2>
+
+<p style="margin-top:10px;color:#aaa">
+Fashion • Style • Quality
+</p>
+
+<div class="footer-links">
+
+<a
+href="https://wa.me/923159062946"
+target="_blank"
+rel="noopener">
+WhatsApp
+</a>
+
+<a
+href="https://instagram.com/ibrahim._787"
+target="_blank"
+rel="noopener">
+Instagram
+</a>
+
+</div>
+
+<p style="margin-top:25px;color:#777">
+© 2026 Ibrahim Cloth Center
+</p>
+
+</footer>
+
+
+<!-- ================= WHATSAPP FLOAT ================= -->
+
+<a
+class="whatsapp"
+href="https://wa.me/923159062946"
+target="_blank"
+rel="noopener"
+aria-label="WhatsApp">
+☎
+</a>
+
+
+<!-- ================= IMAGE MODAL ================= -->
+
+<div
+class="image-modal"
+id="imageModal"
+onclick="closeImageModal(event)">
+
+<button
+class="modal-close"
+onclick="closeImageModal()">
+×
+</button>
+
+<button
+class="modal-prev"
+onclick="previousImage(event)">
+‹
+</button>
+
+<img
+id="modalImage"
+class="modal-image"
+src=""
+alt="Product image"
+>
+
+<button
+class="modal-next"
+onclick="nextImage(event)">
+›
+</button>
+
+<div
+id="modalCounter"
+class="modal-counter">
+1 / 1
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+"https://vllragpuavpdoqamascv.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_-n4MIx0BRzzmjb0H07BhCA_KngV97-8";
+
+const db =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+
+/* =====================================================
+WHATSAPP NUMBER
+===================================================== */
+
+const WHATSAPP_NUMBER =
+"923159062946";
+
+
+/* =====================================================
+MENU
+===================================================== */
+
+function openMenu(){
+
+document
+.getElementById("sideMenu")
+.classList.add("open");
+
+}
+
+function closeMenu(){
+
+document
+.getElementById("sideMenu")
+.classList.remove("open");
+
+}
+
+
+/* =====================================================
+CATEGORY
+===================================================== */
+
+let currentCategory = "All";
+let currentSearch = "";
+
+function selectCategory(category){
+
+currentCategory = category;
+
+closeMenu();
+
+document
+.querySelectorAll(".categories button")
+.forEach(button=>{
+button.classList.remove("active");
+});
+
+const buttons =
+document.querySelectorAll(".categories button");
+
+buttons.forEach(button=>{
+
+const text =
+button.innerText
+.toLowerCase();
+
+if(
+category === "All" &&
+text === "all"
+){
+
+button.classList.add("active");
+
+}
+
+else if(
+category === "Clothes" &&
+text === "clothes"
+){
+
+button.classList.add("active");
+
+}
+
+else if(
+category === "Men Clothes" &&
+text === "men"
+){
+
+button.classList.add("active");
+
+}
+
+else if(
+category === "Women Clothes" &&
+text === "women"
+){
+
+button.classList.add("active");
+
+}
+
+else if(
+category === "Perfumes" &&
+text === "perfumes"
+){
+
+button.classList.add("active");
+
+}
+
+else if(
+category === "Watches" &&
+text === "watches"
+){
+
+button.classList.add("active");
+
+}
+
+});
+
+loadProducts();
+
+}
+
+
+/* =====================================================
+SEARCH
+===================================================== */
+
+function searchProducts(){
+
+currentSearch =
+document
+.getElementById("searchInput")
+.value
+.toLowerCase()
+.trim();
+
+loadProducts();
+
+}
+
+
+/* =====================================================
+LOAD PRODUCTS
+===================================================== */
+
+async function loadProducts(){
+
+let query =
+db
+.from("products")
+.select("*")
+.order("created_at",{ascending:false});
+
+
+if(currentCategory !== "All"){
+
+query =
+query.eq(
+"category",
+currentCategory
+);
+
+}
+
+
+const {
+data,
+error
+} = await query;
+
+
+if(error){
+
+console.error(
+"Products load error:",
+error
+);
+
+document
+.getElementById("products")
+.innerHTML =
+'<div class="empty">Products load nahi ho rahe.</div>';
+
+return;
+
+}
+
+
+let products =
+data || [];
+
+
+/* SEARCH */
+
+if(currentSearch){
+
+products =
+products.filter(product=>{
+
+const text = (
+
+(product.name || "") +
+" " +
+(product.category || "") +
+" " +
+(product.description || "")
+
+).toLowerCase();
+
+return text.includes(
+currentSearch
+);
+
+});
+
+}
+
+
+displayProducts(products);
+
+}
+
+
+/* =====================================================
+DISPLAY PRODUCTS
+===================================================== */
+
+function displayProducts(products){
+
+const box =
+document.getElementById("products");
+
+
+if(!products.length){
+
+box.innerHTML =
+'<div class="empty">No products found.</div>';
+
+return;
+
+}
+
+
+box.innerHTML = "";
+
+
+products.forEach(product=>{
+
+const card =
+document.createElement("div");
+
+card.className =
+"product";
+
+
+/* PHOTOS */
+
+let images = [];
+
+
+if(
+Array.isArray(product.images)
+){
+
+images =
+product.images
+.filter(Boolean);
+
+}
+
+
+/*
+Fallback in case an old product
+has image_url instead.
+*/
+
+if(
+images.length === 0 &&
+product.image_url
+){
+
+images = [
+product.image_url
+];
+
+}
+
+
+let firstImage =
+images.length
+? images[0]
+: "";
+
+
+/* MEDIA */
+
+let media = "";
+
+
+if(firstImage){
+
+media += `
+
+<img
+class="main-image"
+src="${escapeAttribute(firstImage)}"
+alt="${escapeAttribute(product.name || "Product")}"
+onclick='openImageGallery(${JSON.stringify(images)})'
+>
+
+`;
+
+}
+
+
+if(product.video_url){
+
+media += `
+
+<video
+class="video"
+controls
+preload="metadata">
+
+<source
+src="${escapeAttribute(product.video_url)}">
+
+Your browser does not support video.
+
+</video>
+
+`;
+
+}
+
+
+/* PHOTO THUMBNAILS */
+
+let photoGallery = "";
+
+
+if(images.length > 1){
+
+photoGallery = `
+
+<div class="photos">
+
+${images.map((url,index)=>`
+
+<img
+src="${escapeAttribute(url)}"
+alt="Product photo ${index+1}"
+onclick='openImageGallery(${JSON.stringify(images)},${index})'
+>
+
+`).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* WHATSAPP MESSAGE */
+
+const productName =
+product.name || "Product";
+
+const productPrice =
+product.price
+? "PKR " +
+Number(product.price)
+.toLocaleString()
+: "";
+
+
+/*
+Current page URL is included in the
+WhatsApp message so customer can
+send/open the exact website.
+*/
+
+const productLink =
+window.location.href
+.split("#")[0];
+
+
+/*
+WhatsApp cannot automatically attach
+an image from a normal wa.me link.
+It can automatically fill the message.
+*/
+
+const whatsappText =
+"Assalam o Alaikum, mujhe is product ke bare mein maloomat chahiye.\n\n" +
+"Product: " +
+productName +
+"\nPrice: " +
+productPrice +
+"\nWebsite: " +
+productLink;
+
+
+const whatsappURL =
+"https://wa.me/" +
+WHATSAPP_NUMBER +
+"?text=" +
+encodeURIComponent(
+whatsappText
+);
+
+
+/* CARD */
+
+card.innerHTML = `
+
+<div class="media">
+
+${media}
+
+<span class="badge">
+${escapeHtml(product.category || "")}
+</span>
+
+</div>
+
+${photoGallery}
+
+<div class="info">
+
+<h3>
+${escapeHtml(product.name || "")}
+</h3>
+
+<div class="category-name">
+${escapeHtml(product.category || "")}
+</div>
+
+<div class="price">
+PKR ${Number(product.price || 0).toLocaleString()}
+</div>
+
+<p class="description">
+${escapeHtml(product.description || "")}
+</p>
+
+<a
+class="order-btn"
+href="${escapeAttribute(whatsappURL)}"
+target="_blank"
+rel="noopener">
+
+WhatsApp Order
+
+</a>
+
+</div>
+
+`;
+
+
+box.appendChild(card);
+
+});
+
+}
+
+
+/* =====================================================
+IMAGE GALLERY
+===================================================== */
+
+let galleryImages = [];
+let galleryIndex = 0;
+
+
+function openImageGallery(
+images,
+index = 0
+){
+
+if(
+!Array.isArray(images) ||
+images.length === 0
+){
+
+return;
+
+}
+
+
+galleryImages = images;
+galleryIndex = index;
+
+
+updateModal();
+
+
+document
+.getElementById("imageModal")
+.classList.add("open");
+
+
+document.body.style.overflow =
+"hidden";
+
+}
+
+
+function updateModal(){
+
+const modalImage =
+document.getElementById("modalImage");
+
+const counter =
+document.getElementById("modalCounter");
+
+
+if(!galleryImages.length)
+return;
+
+
+modalImage.src =
+galleryImages[galleryIndex];
+
+
+counter.innerText =
+(
+galleryIndex + 1
+) +
+" / " +
+galleryImages.length;
+
+}
+
+
+function nextImage(event){
+
+if(event)
+event.stopPropagation();
+
+if(!galleryImages.length)
+return;
+
+galleryIndex++;
+
+if(
+galleryIndex >=
+galleryImages.length
+){
+
+galleryIndex = 0;
+
+}
+
+updateModal();
+
+}
+
+
+function previousImage(event){
+
+if(event)
+event.stopPropagation();
+
+if(!galleryImages.length)
+return;
+
+galleryIndex--;
+
+if(galleryIndex < 0){
+
+galleryIndex =
+galleryImages.length - 1;
+
+}
+
+updateModal();
+
+}
+
+
+function closeImageModal(event){
+
+if(
+event &&
+event.target &&
+event.target.id !== "imageModal"
+){
+
+return;
+
+}
+
+document
+.getElementById("imageModal")
+.classList.remove("open");
+
+document.body.style.overflow =
+"";
+
+}
+
+
+/* KEYBOARD */
+
+document.addEventListener(
+"keydown",
+function(event){
+
+const modal =
+document.getElementById("imageModal");
+
+if(
+!modal.classList.contains("open")
+)
+return;
+
+
+if(event.key === "ArrowRight"){
+
+nextImage();
+
+}
+
+if(event.key === "ArrowLeft"){
+
+previousImage();
+
+}
+
+if(event.key === "Escape"){
+
+closeImageModal();
+
+}
+
+}
+);
+
+
+/* =====================================================
+OWNER LOGIN
+===================================================== */
+
+async function login(){
+
+const email =
+document
+.getElementById("ownerEmail")
+.value
+.trim();
+
+const password =
+document
+.getElementById("ownerPassword")
+.value;
+
+
+if(!email || !password){
+
+document
+.getElementById("loginMsg")
+.innerText =
+"Email aur password enter karo.";
+
+return;
+
+}
+
+
+document
+.getElementById("loginMsg")
+.innerText =
+"Logging in...";
+
+
+const {
+data,
+error
+} =
+await db.auth.signInWithPassword({
+
+email:email,
+password:password
+
+});
+
+
+if(error){
+
+console.error(
+"Login error:",
+error
+);
+
+document
+.getElementById("loginMsg")
+.innerText =
+"Login failed: " +
+(error.message || "Invalid login.");
+
+return;
+
+}
+
+
+if(!data.session){
+
+document
+.getElementById("loginMsg")
+.innerText =
+"Login session nahi mili.";
+
+return;
+
+}
+
+
+document
+.getElementById("loginBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("dashboard")
+.style.display =
+"block";
+
+
+loadOwnerProducts();
+
+}
+
+
+/* =====================================================
+ADD PRODUCT
+===================================================== */
+
+async function addProduct(){
+
+const button =
+document.getElementById(
+"addProductBtn"
+);
+
+const name =
+document
+.getElementById("productName")
+.value
+.trim();
+
+const category =
+document
+.getElementById("productCategory")
+.value;
+
+const price =
+document
+.getElementById("productPrice")
+.value;
+
+const description =
+document
+.getElementById("productDescription")
+.value
+.trim();
+
+const photos =
+document
+.getElementById("productPhotos")
+.files;
+
+const video =
+document
+.getElementById("productVideo")
+.files[0];
+
+
+if(!name || !price){
+
+document
+.getElementById("addMsg")
+.innerText =
+"Product name aur price zaroor likho.";
+
+return;
+
+}
+
+
+/* USER MUST BE LOGGED IN */
+
+const {
+data:sessionData
+} =
+await db.auth.getSession();
+
+
+if(
+!sessionData ||
+!sessionData.session
+){
+
+document
+.getElementById("addMsg")
+.innerText =
+"Owner login dobara karo.";
+
+return;
+
+}
+
+
+button.disabled = true;
+button.innerText =
+"UPLOADING...";
+
+
+document
+.getElementById("addMsg")
+.innerText =
+"Files upload ho rahi hain...";
+
+
+let imageUrls = [];
+
+
+/* =====================================================
+PHOTOS
+===================================================== */
+
+for(
+let i = 0;
+i < photos.length;
+i++
+){
+
+const file =
+photos[i];
+
+
+const safeName =
+file.name
+.replace(
+/[^a-zA-Z0-9._-]/g,
+""
+);
+
+
+const filename =
+Date.now() +
+"-" +
+i +
+"-" +
+safeName;
+
+
+const path =
+"products/" +
+filename;
+
+
+const {
+error
+} =
+await db.storage
+.from("product-images")
+.upload(
+path,
+file,
+{
+cacheControl:"3600",
+upsert:false
+}
+);
+
+
+if(error){
+
+console.error(
+"Photo upload error:",
+error
+);
+
+document
+.getElementById("addMsg")
+.innerText =
+"Photo upload error: " +
+error.message;
+
+button.disabled = false;
+button.innerText =
+"ADD PRODUCT";
+
+return;
+
+}
+
+
+const {
+data:urlData
+} =
+db.storage
+.from("product-images")
+.getPublicUrl(path);
+
+
+if(
+urlData &&
+urlData.publicUrl
+){
+
+imageUrls.push(
+urlData.publicUrl
+);
+
+}
+
+}
+
+
+/* =====================================================
+VIDEO
+===================================================== */
+
+let videoUrl = null;
+
+
+if(video){
+
+const safeName =
+video.name
+.replace(
+/[^a-zA-Z0-9._-]/g,
+""
+);
+
+
+const filename =
+Date.now() +
+"-video-" +
+safeName;
+
+
+const path =
+"products/" +
+filename;
+
+
+const {
+error
+} =
+await db.storage
+.from("product-images")
+.upload(
+path,
+video,
+{
+cacheControl:"3600",
+upsert:false
+}
+);
+
+
+if(error){
+
+console.error(
+"Video upload error:",
+error
+);
+
+document
+.getElementById("addMsg")
+.innerText =
+"Video upload error: " +
+error.message;
+
+button.disabled = false;
+button.innerText =
+"ADD PRODUCT";
+
+return;
+
+}
+
+
+const {
+data:urlData
+} =
+db.storage
+.from("product-images")
+.getPublicUrl(path);
+
+
+if(
+urlData &&
+urlData.publicUrl
+){
+
+videoUrl =
+urlData.publicUrl;
+
+}
+
+}
+
+
+/* =====================================================
+DATABASE
+===================================================== */
+
+document
+.getElementById("addMsg")
+.innerText =
+"Product database mein save ho raha hai...";
+
+
+const {
+error:databaseError
+} =
+await db
+.from("products")
+.insert({
+
+name:name,
+category:category,
+price:Number(price),
+description:description,
+images:imageUrls,
+video_url:videoUrl
+
+});
+
+
+if(databaseError){
+
+console.error(
+"Database save error:",
+databaseError
+);
+
+document
+.getElementById("addMsg")
+.innerText =
+"Database save error: " +
+databaseError.message;
+
+button.disabled = false;
+button.innerText =
+"ADD PRODUCT";
+
+return;
+
+}
+
+
+/* SUCCESS */
+
+document
+.getElementById("addMsg")
+.innerText =
+"Product successfully added! ✅";
+
+
+/* CLEAR FORM */
+
+document
+.getElementById("productName")
+.value = "";
+
+document
+.getElementById("productPrice")
+.value = "";
+
+document
+.getElementById("productDescription")
+.value = "";
+
+document
+.getElementById("productPhotos")
+.value = "";
+
+document
+.getElementById("productVideo")
+.value = "";
+
+
+button.disabled = false;
+button.innerText =
+"ADD PRODUCT";
+
+
+/* REFRESH */
+
+await loadProducts();
+
+await loadOwnerProducts();
+
+}
+
+
+/* =====================================================
+OWNER PRODUCTS
+===================================================== */
+
+async function loadOwnerProducts(){
+
+const {
+data,
+error
+} =
+await db
+.from("products")
+.select("*")
+.order(
+"created_at",
+{
+ascending:false
+}
+);
+
+
+if(error){
+
+console.error(
+"Owner products error:",
+error
+);
+
+document
+.getElementById("ownerProducts")
+.innerHTML =
+'<p style="color:#c40000">Products load nahi ho rahe.</p>';
+
+return;
+
+}
+
+
+const box =
+document.getElementById(
+"ownerProducts"
+);
+
+
+box.innerHTML = "";
+
+
+if(
+!data ||
+data.length === 0
+){
+
+box.innerHTML =
+'<p style="color:#777;margin-top:15px">No products yet.</p>';
+
+return;
+
+}
+
+
+data.forEach(product=>{
+
+let images = [];
+
+
+if(
+Array.isArray(product.images)
+){
+
+images =
+product.images
+.filter(Boolean);
+
+}
+
+
+if(
+images.length === 0 &&
+product.image_url
+){
+
+images = [
+product.image_url
+];
+
+}
+
+
+const firstImage =
+images.length
+? images[0]
+: "";
+
+
+const div =
+document.createElement(
+"div"
+);
+
+div.className =
+"owner-product";
+
+
+div.innerHTML = `
+
+${
+firstImage
+?
+`<img
+src="${escapeAttribute(firstImage)}"
+alt="Product">`
+:
+""
+}
+
+<div class="owner-product-info">
+
+<strong>
+${escapeHtml(product.name || "")}
+</strong>
+
+<div>
+PKR ${Number(product.price || 0).toLocaleString()}
+</div>
+
+</div>
+
+<button
+class="delete"
+data-id="${escapeAttribute(String(product.id))}">
+
+DELETE
+
+</button>
+
+`;
+
+
+const deleteButton =
+div.querySelector(".delete");
+
+
+deleteButton.addEventListener(
+"click",
+function(){
+
+deleteProduct(
+product.id
+);
+
+}
+);
+
+
+box.appendChild(div);
+
+});
+
+}
+
+
+/* =====================================================
+DELETE PRODUCT
+===================================================== */
+
+async function deleteProduct(id){
+
+const {
+data:sessionData
+} =
+await db.auth.getSession();
+
+
+if(
+!sessionData ||
+!sessionData.session
+){
+
+alert(
+"Owner login required."
+);
+
+return;
+
+}
+
+
+if(
+!confirm(
+"Delete this product?"
+)
+){
+
+return;
+
+}
+
+
+const {
+error
+} =
+await db
+.from("products")
+.delete()
+.eq("id",id);
+
+
+if(error){
+
+console.error(
+"Delete error:",
+error
+);
+
+alert(
+"Delete failed: " +
+error.message
+);
+
+return;
+
+}
+
+
+await loadProducts();
+
+await loadOwnerProducts();
+
+}
+
+
+/* =====================================================
+LOGOUT
+===================================================== */
+
+async function logout(){
+
+await db.auth.signOut();
+
+
+document
+.getElementById("dashboard")
+.style.display =
+"none";
+
+
+document
+.getElementById("loginBox")
+.style.display =
+"block";
+
+
+document
+.getElementById("ownerEmail")
+.value = "";
+
+document
+.getElementById("ownerPassword")
+.value = "";
+
+document
+.getElementById("loginMsg")
+.innerText =
+"";
+
+}
+
+
+/* =====================================================
+OWNER MODE
+===================================================== */
+
+function checkOwnerMode(){
+
+if(
+location.hash.toLowerCase() ===
+"#owner"
+){
+
+document
+.getElementById("publicSite")
+.style.display =
+"none";
+
+
+document
+.getElementById("ownerPage")
+.style.display =
+"block";
+
+
+document
+.querySelector(".search-area")
+.style.display =
+"none";
+
+
+document
+.querySelector("footer")
+.style.display =
+"none";
+
+
+/*
+Check if an existing Supabase
+session is already logged in.
+*/
+
+checkExistingOwnerSession();
+
+}
+
+else{
+
+document
+.getElementById("publicSite")
+.style.display =
+"block";
+
+
+document
+.getElementById("ownerPage")
+.style.display =
+"none";
+
+
+document
+.querySelector(".search-area")
+.style.display =
+"block";
+
+
+document
+.querySelector("footer")
+.style.display =
+"block";
+
+}
+
+}
+
+
+/* =====================================================
+CHECK EXISTING SESSION
+===================================================== */
+
+async function checkExistingOwnerSession(){
+
+const {
+data
+} =
+await db.auth.getSession();
+
+
+if(
+data &&
+data.session
+){
+
+document
+.getElementById("loginBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("dashboard")
+.style.display =
+"block";
+
+
+loadOwnerProducts();
+
+}
+
+}
+
+
+/* =====================================================
+ESCAPE HTML
+===================================================== */
+
+function escapeHtml(text){
+
+if(
+text === null ||
+text === undefined
+){
+
+return "";
+
+}
+
+
+const div =
+document.createElement("div");
+
+
+div.textContent =
+String(text);
+
+
+return div.innerHTML;
+
+}
+
+
+/* =====================================================
+ESCAPE ATTRIBUTE
+===================================================== */
+
+function escapeAttribute(text){
+
+if(
+text === null ||
+text === undefined
+){
+
+return "";
+
+}
+
+
+return String(text)
+.replace(/&/g,"&amp;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#39;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;");
+
+}
+
+
+/* =====================================================
+AUTH STATE
+===================================================== */
+
+db.auth.onAuthStateChange(
+function(event,session){
+
+if(
+location.hash.toLowerCase() !==
+"#owner"
+){
+
+return;
+
+}
+
+
+if(
+session
+){
+
+document
+.getElementById("loginBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("dashboard")
+.style.display =
+"block";
+
+}
+
+else{
+
+document
+.getElementById("loginBox")
+.style.display =
+"block";
+
+
+document
+.getElementById("dashboard")
+.style.display =
+"none";
+
+}
+
+});
+
+
+/* =====================================================
+HASH CHANGE
+===================================================== */
+
+window.addEventListener(
+"hashchange",
+function(){
+
+checkOwnerMode();
+
+}
+);
+
+
+/* =====================================================
+START
+===================================================== */
+
+checkOwnerMode();
+
+loadProducts();
+
+</script>
+
+</body>
+</html>
