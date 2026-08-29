@@ -1,0 +1,1126 @@
+<script>
+
+/* =========================
+SUPABASE
+========================= */
+
+const SUPABASE_URL =
+"https://vllragpuavpdoqamascv.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_-n4MIx0BRzzmjb0H07BhCA_KngV97-8";
+
+const db = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* =========================
+MENU
+========================= */
+
+function openMenu(){
+  document.getElementById("sideMenu").classList.add("open");
+}
+
+function closeMenu(){
+  document.getElementById("sideMenu").classList.remove("open");
+}
+
+
+/* =========================
+CATEGORY + SEARCH
+========================= */
+
+let currentCategory = "All";
+let currentSearch = "";
+
+function selectCategory(category){
+
+  currentCategory = category;
+  closeMenu();
+
+  document.querySelectorAll(".categories button")
+    .forEach(b => b.classList.remove("active"));
+
+  document.querySelectorAll(".categories button")
+    .forEach(b => {
+
+      const text = b.innerText.toLowerCase();
+
+      if(
+        category === "All" && text === "all"
+      ){
+        b.classList.add("active");
+      }
+
+      if(
+        category !== "All" &&
+        text.includes(category.split(" ")[0].toLowerCase())
+      ){
+        b.classList.add("active");
+      }
+
+    });
+
+  loadProducts();
+}
+
+
+function searchProducts(){
+
+  currentSearch =
+    document.getElementById("searchInput")
+    .value
+    .toLowerCase()
+    .trim();
+
+  loadProducts();
+}
+
+
+/* =========================
+LOAD PRODUCTS
+========================= */
+
+async function loadProducts(){
+
+  const box = document.getElementById("products");
+
+  box.innerHTML =
+    '<div class="empty">Loading products...</div>';
+
+  let query = db
+    .from("products")
+    .select("*")
+    .order("created_at", {ascending:false});
+
+  if(currentCategory !== "All"){
+    query = query.eq("category", currentCategory);
+  }
+
+  const {data, error} = await query;
+
+  if(error){
+
+    console.error("PRODUCT LOAD ERROR:", error);
+
+    box.innerHTML =
+      '<div class="empty">Products load nahi ho rahe.<br><small>'
+      + escapeHtml(error.message)
+      + '</small></div>';
+
+    return;
+  }
+
+  let products = data || [];
+
+  if(currentSearch){
+
+    products = products.filter(product => {
+
+      const text =
+        (product.name || "") + " " +
+        (product.category || "") + " " +
+        (product.description || "");
+
+      return text
+        .toLowerCase()
+        .includes(currentSearch);
+
+    });
+
+  }
+
+  displayProducts(products);
+}
+
+
+/* =========================
+DISPLAY PRODUCTS
+========================= */
+
+function displayProducts(products){
+
+  const box = document.getElementById("products");
+
+  if(!products.length){
+
+    box.innerHTML =
+      '<div class="empty">No products found.</div>';
+
+    return;
+  }
+
+  box.innerHTML = "";
+
+  products.forEach(product => {
+
+    const card = document.createElement("div");
+    card.className = "product";
+
+    let images = [];
+
+    if(Array.isArray(product.images)){
+      images = product.images;
+    }
+
+    let image = images.length ? images[0] : "";
+
+    let media = "";
+
+    if(image){
+
+      media += `
+        <img
+          class="main-image"
+          src="${escapeAttribute(image)}"
+          id="main-${escapeAttribute(product.id)}"
+          alt="${escapeAttribute(product.name || "")}"
+        >
+      `;
+
+    }else{
+
+      media += `
+        <div style="
+          height:300px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          color:#888;
+        ">
+          No Photo
+        </div>
+      `;
+
+    }
+
+
+    /* VIDEO */
+
+    if(product.video_url){
+
+      media += `
+        <video
+          class="video"
+          controls
+          preload="metadata"
+          playsinline>
+          <source src="${escapeAttribute(product.video_url)}">
+        </video>
+      `;
+
+    }
+
+
+    /* PHOTO GALLERY */
+
+    let photoGallery = "";
+
+    if(images.length > 1){
+
+      photoGallery = `
+        <div class="photos">
+
+          ${images.map(url => `
+
+            <img
+              src="${escapeAttribute(url)}"
+              onclick="changeImage(
+                '${escapeAttribute(product.id)}',
+                '${escapeAttribute(url)}'
+              )"
+              alt="Product photo"
+            >
+
+          `).join("")}
+
+        </div>
+      `;
+
+    }
+
+
+    /* WHATSAPP MESSAGE */
+
+    let whatsappText =
+      "Assalam o Alaikum! Mujhe is product ke bare mein maloomat chahiye.\n\n" +
+      "Product: " + (product.name || "") + "\n" +
+      "Category: " + (product.category || "") + "\n" +
+      "Price: PKR " + Number(product.price || 0).toLocaleString();
+
+    if(product.description){
+
+      whatsappText +=
+        "\nDescription: " +
+        product.description;
+
+    }
+
+    /*
+      WhatsApp simple wa.me link se photo ko
+      actual attachment ke taur par automatically
+      bhejna possible nahi hota.
+
+      Isliye product ki photo ka public URL
+      message ke andar add kiya ja raha hai.
+    */
+
+    if(image){
+
+      whatsappText +=
+        "\n\nProduct Photo:\n" +
+        image;
+
+    }
+
+
+    const whatsappURL =
+      "https://wa.me/923159062946?text=" +
+      encodeURIComponent(whatsappText);
+
+
+    card.innerHTML = `
+
+      <div class="media">
+
+        ${media}
+
+        <span class="badge">
+          ${escapeHtml(product.category || "")}
+        </span>
+
+      </div>
+
+      ${photoGallery}
+
+      <div class="info">
+
+        <h3>
+          ${escapeHtml(product.name || "")}
+        </h3>
+
+        <div class="category-name">
+          ${escapeHtml(product.category || "")}
+        </div>
+
+        <div class="price">
+          PKR ${Number(product.price || 0).toLocaleString()}
+        </div>
+
+        <p class="description">
+          ${escapeHtml(product.description || "")}
+        </p>
+
+        <a
+          class="order-btn"
+          href="${escapeAttribute(whatsappURL)}"
+          target="_blank"
+          rel="noopener">
+          WhatsApp Order
+        </a>
+
+      </div>
+
+    `;
+
+    box.appendChild(card);
+
+  });
+
+}
+
+
+/* =========================
+CHANGE PHOTO
+========================= */
+
+function changeImage(id, url){
+
+  const image =
+    document.getElementById("main-" + id);
+
+  if(image){
+    image.src = url;
+  }
+
+}
+
+
+/* =========================
+OWNER LOGIN
+========================= */
+
+async function login(){
+
+  const email =
+    document.getElementById("ownerEmail")
+    .value
+    .trim();
+
+  const password =
+    document.getElementById("ownerPassword")
+    .value;
+
+  const msg =
+    document.getElementById("loginMsg");
+
+  if(!email || !password){
+
+    msg.innerText =
+      "Email aur password enter karo.";
+
+    return;
+  }
+
+  msg.innerText = "Logging in...";
+
+
+  const {data, error} =
+    await db.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+
+  if(error){
+
+    console.error("LOGIN ERROR:", error);
+
+    msg.innerText =
+      "Login failed: " + error.message;
+
+    return;
+  }
+
+
+  if(!data || !data.user){
+
+    msg.innerText =
+      "Login nahi hua.";
+
+    return;
+  }
+
+
+  msg.innerText = "";
+
+  showOwnerDashboard();
+
+}
+
+
+/* =========================
+SHOW OWNER DASHBOARD
+========================= */
+
+function showOwnerDashboard(){
+
+  document.getElementById("loginBox")
+    .style.display = "none";
+
+  document.getElementById("dashboard")
+    .style.display = "block";
+
+  loadOwnerProducts();
+
+}
+
+
+/* =========================
+ADD PRODUCT
+========================= */
+
+async function addProduct(){
+
+  const msg =
+    document.getElementById("addMsg");
+
+  const name =
+    document.getElementById("productName")
+    .value
+    .trim();
+
+  const category =
+    document.getElementById("productCategory")
+    .value;
+
+  const price =
+    document.getElementById("productPrice")
+    .value;
+
+  const description =
+    document.getElementById("productDescription")
+    .value
+    .trim();
+
+  const photos =
+    document.getElementById("productPhotos")
+    .files;
+
+  const videoInput =
+    document.getElementById("productVideo")
+    .files;
+
+  const video =
+    videoInput.length
+      ? videoInput[0]
+      : null;
+
+
+  if(!name){
+
+    msg.innerText =
+      "Product name likho.";
+
+    return;
+  }
+
+
+  if(!price){
+
+    msg.innerText =
+      "Price likho.";
+
+    return;
+  }
+
+
+  if(!photos.length){
+
+    msg.innerText =
+      "Kam az kam 1 product photo select karo.";
+
+    return;
+  }
+
+
+  msg.innerText =
+    "Product upload ho raha hai...";
+
+
+  try{
+
+    /* =========================
+       CHECK OWNER LOGIN
+    ========================= */
+
+    const {
+      data: {user},
+      error: userError
+    } = await db.auth.getUser();
+
+
+    if(userError || !user){
+
+      msg.innerText =
+        "Owner login expire ho gaya. Dobara login karo.";
+
+      return;
+    }
+
+
+    /* =========================
+       UPLOAD PHOTOS
+    ========================= */
+
+    let imageUrls = [];
+
+
+    for(let i = 0; i < photos.length; i++){
+
+      const file = photos[i];
+
+      const safeName =
+        file.name
+        .replace(/[^a-zA-Z0-9._-]/g,"_");
+
+      const path =
+        "products/" +
+        user.id +
+        "/" +
+        Date.now() +
+        "-" +
+        i +
+        "-" +
+        safeName;
+
+
+      const {error: uploadError} =
+        await db.storage
+        .from("product-images")
+        .upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        });
+
+
+      if(uploadError){
+
+        console.error(
+          "PHOTO UPLOAD ERROR:",
+          uploadError
+        );
+
+        msg.innerHTML =
+          "Photo upload error:<br>" +
+          escapeHtml(uploadError.message) +
+          "<br><small>Supabase Storage bucket/policy check karo.</small>";
+
+        return;
+      }
+
+
+      const {
+        data: publicData
+      } =
+        db.storage
+        .from("product-images")
+        .getPublicUrl(path);
+
+
+      if(
+        publicData &&
+        publicData.publicUrl
+      ){
+
+        imageUrls.push(
+          publicData.publicUrl
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       UPLOAD VIDEO
+    ========================= */
+
+    let videoUrl = null;
+
+
+    if(video){
+
+      const safeVideoName =
+        video.name
+        .replace(/[^a-zA-Z0-9._-]/g,"_");
+
+      const videoPath =
+        "products/" +
+        user.id +
+        "/" +
+        Date.now() +
+        "-video-" +
+        safeVideoName;
+
+
+      const {
+        error: videoError
+      } =
+        await db.storage
+        .from("product-images")
+        .upload(
+          videoPath,
+          video,
+          {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: video.type
+          }
+        );
+
+
+      if(videoError){
+
+        console.error(
+          "VIDEO UPLOAD ERROR:",
+          videoError
+        );
+
+        msg.innerHTML =
+          "Video upload error:<br>" +
+          escapeHtml(videoError.message);
+
+        return;
+      }
+
+
+      const {
+        data: videoPublicData
+      } =
+        db.storage
+        .from("product-images")
+        .getPublicUrl(videoPath);
+
+
+      if(
+        videoPublicData &&
+        videoPublicData.publicUrl
+      ){
+
+        videoUrl =
+          videoPublicData.publicUrl;
+
+      }
+
+    }
+
+
+    /* =========================
+       SAVE DATABASE
+    ========================= */
+
+    const {
+      data: insertedProduct,
+      error: databaseError
+    } =
+      await db
+      .from("products")
+      .insert({
+
+        name: name,
+
+        category: category,
+
+        price: Number(price),
+
+        description: description,
+
+        images: imageUrls,
+
+        video_url: videoUrl
+
+      })
+      .select()
+      .single();
+
+
+    if(databaseError){
+
+      console.error(
+        "DATABASE ERROR:",
+        databaseError
+      );
+
+      msg.innerHTML =
+        "<b>Product save error:</b><br>" +
+        escapeHtml(databaseError.message) +
+        "<br><br>" +
+        "<small>Code: " +
+        escapeHtml(databaseError.code || "") +
+        "</small>";
+
+      return;
+    }
+
+
+    console.log(
+      "PRODUCT SAVED:",
+      insertedProduct
+    );
+
+
+    msg.innerText =
+      "Product successfully added! ✅";
+
+
+    /* CLEAR FORM */
+
+    document.getElementById(
+      "productName"
+    ).value = "";
+
+    document.getElementById(
+      "productPrice"
+    ).value = "";
+
+    document.getElementById(
+      "productDescription"
+    ).value = "";
+
+    document.getElementById(
+      "productPhotos"
+    ).value = "";
+
+    document.getElementById(
+      "productVideo"
+    ).value = "";
+
+
+    /* REFRESH */
+
+    await loadProducts();
+    await loadOwnerProducts();
+
+
+  }catch(error){
+
+    console.error(
+      "UNEXPECTED ERROR:",
+      error
+    );
+
+    msg.innerHTML =
+      "Error:<br>" +
+      escapeHtml(
+        error.message || String(error)
+      );
+
+  }
+
+}
+
+
+/* =========================
+OWNER PRODUCTS
+========================= */
+
+async function loadOwnerProducts(){
+
+  const box =
+    document.getElementById("ownerProducts");
+
+  box.innerHTML =
+    "Loading...";
+
+
+  const {
+    data: {user},
+    error: userError
+  } = await db.auth.getUser();
+
+
+  if(userError || !user){
+
+    box.innerHTML =
+      "Owner login required.";
+
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+    .from("products")
+    .select("*")
+    .order(
+      "created_at",
+      {ascending:false}
+    );
+
+
+  if(error){
+
+    console.error(
+      "OWNER PRODUCTS ERROR:",
+      error
+    );
+
+    box.innerHTML =
+      escapeHtml(error.message);
+
+    return;
+  }
+
+
+  box.innerHTML = "";
+
+
+  if(!data || !data.length){
+
+    box.innerHTML =
+      "<p style='color:#777;margin-top:15px'>No products yet.</p>";
+
+    return;
+  }
+
+
+  data.forEach(p => {
+
+    const firstImage =
+      Array.isArray(p.images) &&
+      p.images.length
+        ? p.images[0]
+        : "";
+
+
+    const item =
+      document.createElement("div");
+
+    item.className =
+      "owner-product";
+
+
+    item.innerHTML = `
+
+      ${
+        firstImage
+        ?
+        `<img
+          src="${escapeAttribute(firstImage)}"
+          alt="Product">`
+        :
+        ""
+      }
+
+      <div class="owner-product-info">
+
+        <strong>
+          ${escapeHtml(p.name || "")}
+        </strong>
+
+        <div>
+          PKR ${Number(
+            p.price || 0
+          ).toLocaleString()}
+        </div>
+
+        <small>
+          ${escapeHtml(
+            p.category || ""
+          )}
+        </small>
+
+      </div>
+
+      <button
+        class="delete"
+        onclick="deleteProduct('${escapeAttribute(p.id)}')">
+        DELETE
+      </button>
+
+    `;
+
+
+    box.appendChild(item);
+
+  });
+
+}
+
+
+/* =========================
+DELETE PRODUCT
+========================= */
+
+async function deleteProduct(id){
+
+  const {
+    data: {user},
+    error: userError
+  } = await db.auth.getUser();
+
+
+  if(userError || !user){
+
+    alert(
+      "Owner login required."
+    );
+
+    return;
+  }
+
+
+  if(
+    !confirm(
+      "Is product ko delete karna hai?"
+    )
+  ){
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db
+    .from("products")
+    .delete()
+    .eq("id", id);
+
+
+  if(error){
+
+    console.error(
+      "DELETE ERROR:",
+      error
+    );
+
+    alert(
+      "Delete failed:\n" +
+      error.message
+    );
+
+    return;
+  }
+
+
+  await loadProducts();
+  await loadOwnerProducts();
+
+}
+
+
+/* =========================
+LOGOUT
+========================= */
+
+async function logout(){
+
+  await db.auth.signOut();
+
+  document.getElementById(
+    "dashboard"
+  ).style.display = "none";
+
+  document.getElementById(
+    "loginBox"
+  ).style.display = "block";
+
+  document.getElementById(
+    "ownerEmail"
+  ).value = "";
+
+  document.getElementById(
+    "ownerPassword"
+  ).value = "";
+
+}
+
+
+/* =========================
+OWNER MODE
+========================= */
+
+async function checkOwnerMode(){
+
+  if(location.hash === "#owner"){
+
+    document.getElementById(
+      "publicSite"
+    ).style.display = "none";
+
+    document.getElementById(
+      "ownerPage"
+    ).style.display = "block";
+
+
+    const {
+      data: {user}
+    } = await db.auth.getUser();
+
+
+    if(user){
+
+      showOwnerDashboard();
+
+    }else{
+
+      document.getElementById(
+        "loginBox"
+      ).style.display = "block";
+
+      document.getElementById(
+        "dashboard"
+      ).style.display = "none";
+
+    }
+
+  }else{
+
+    document.getElementById(
+      "publicSite"
+    ).style.display = "block";
+
+    document.getElementById(
+      "ownerPage"
+    ).style.display = "none";
+
+  }
+
+}
+
+
+/* =========================
+HTML SECURITY
+========================= */
+
+function escapeHtml(text){
+
+  if(
+    text === null ||
+    text === undefined
+  ){
+
+    return "";
+
+  }
+
+  const div =
+    document.createElement("div");
+
+  div.textContent = String(text);
+
+  return div.innerHTML;
+
+}
+
+
+function escapeAttribute(text){
+
+  if(
+    text === null ||
+    text === undefined
+  ){
+
+    return "";
+
+  }
+
+  return String(text)
+    .replace(/&/g,"&amp;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+
+}
+
+
+/* =========================
+AUTH STATE
+========================= */
+
+db.auth.onAuthStateChange(
+  (event, session) => {
+
+    if(
+      location.hash === "#owner" &&
+      session &&
+      session.user
+    ){
+
+      showOwnerDashboard();
+
+    }
+
+  }
+);
+
+
+/* =========================
+START
+========================= */
+
+checkOwnerMode();
+loadProducts();
+
+</script>
